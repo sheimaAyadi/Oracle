@@ -1,97 +1,424 @@
-# Administration des Bases de données avec Oracle 
+# TP4
 
-Ce quide a pour objectif de vous illustrer les étapes à suivre 
-pour bien installer Oracle 11g.
+Vous trouverez dans ce [lien](https://docs.google.com/presentation/d/1tonsLynHdpmkTqB0wCP2WNfBjltlScxK00hekP2wruo/edit?usp=sharing) la présentation utilisée dans ce TP.
 
-Vous trouverez dans ce [lien](https://drive.google.com/file/d/11LkeSwxDTBx0Dhn9nQreCL-WC5d36yHR/view) le fichier à télécharger.
+## Introduction
 
-## Installation d'Oracle
+Dans cette partie, nous allons détailler le langage de contrôle des données.
 
-Une fois le fichier téléchargé, décompressez le et double cliquez sur "setup" : 
+## Gestion des privilèges
 
-<p align="center">
-  <img width="700" src="images/1.PNG" alt="picture">
-</p>
+Un privilège donne le droit d'exécuter certaines commandes SQL ou le droit d'accéder à certaines ressources.
 
-Ensuite, cliquez sur "Next" :
+Oracle possède deux types de privilèges :
+- les privilèges systèmes
+- les privilèges objets.
 
-<p align="center">
-  <img width="700" src="images/2.PNG" alt="picture">
-</p>
+Un privilège peut être affecté (retiré) à:
+- un Utilisateur,
+- un Rôle
+- tous les utilisateurs (PUBLIC).
 
-Puis, acceptez le contrat de licence :
+Les privilèges donnent le droit de réaliser des opérations systèmes.
 
-<p align="center">
-  <img width="700" src="images/3.PNG" alt="picture">
-</p>
+Ces privilèges sont classés par catégories d'objets.
 
-Par la suite, saisissez le mot de passe de la base de données **(essayez de vous en souvenir !! )** :
+Exemple de privilèges systèmes de la catégorie TABLE:
+- CREATE TABLE 
+- CREATE ANY TABLE
+- ALTER ANY TABLE 
+- BACKUP ANY TABLE
+- DROP ANY TABLE 
+- SELECT ANY TABLE
+- INSERT ANY TABLE 
+- UPDATE ANY TABLE
+- DELETE ANY TABLE 
+- ...
 
-<p align="center">
-  <img width="700" src="images/4.PNG" alt="picture">
-</p>
+Affectation d'un privilège : 
+```GRANT { system_priv | role } TO { user | role | PUBLIC }```
 
-Et enfin, cliquez sur "installer" pour démarrer l'installation :
+Révocation d’un privilège :
+```REVOKE { <system_priv> | <rôle> } FROM { <utilisateur> | <rôle> | PUBLIC }```
 
-<p align="center">
-  <img width="700" src="images/5.PNG" alt="picture">
-</p>
+## Gestion des rôles
 
-Une fois l'installation terminée, vous trouverez le raccourci sur votre bureau : 
+Un rôle est un concept Oracle qui permet de regrouper plusieurs privilèges et /ou rôles afin de les affecter ou retirer en bloc à un utilisateur et /ou un rôle.
 
-<p align="center">
-  <img width="300" src="images/6.PNG" alt="picture">
-</p>
+Un rôle facilite la gestion des privilèges.
 
-## Exécution d'Oracle
-
-Lorsque vous double cliquez sur l'icône d'Oracle, vous serez redirigé vers une page web :
-
-<p align="center">
-  <img width="900" src="images/7.PNG" alt="picture">
-</p>
-
-Par la suite, cliquez sur **"Application Express"**, vous serez amené à vous authentifier.
-Saisissez le login **"system"** et le mot de passe celui que vous avez saisi auparavant : 
+Pour créer un rôle, il faut avoir le privilège ```CREATE ROLE```
 
 <p align="center">
-  <img width="900" src="images/8.PNG" alt="picture">
+  <img width="750" src="images/1.png" alt="picture">
 </p>
-
-Puis, vous pouvez créer votre base de données comme illustré sur l'image qui suit :
 
 <p align="center">
-  <img width="900" src="images/9.PNG" alt="picture">
+  <img width="750" src="images/2.png" alt="picture">
 </p>
 
-Une fois terminée, cliquez sur "create workspace" vous serez redirigé à la page principale 
-et cliquez sur le lien présent dans la notification :
+Pour créer un rôle : ```CREATE ROLE rôle [ { NOT IDENTIFIED | IDENTIFIED { BY password | EXTERNALLY | GLOBALLY | USING package} ]```
+avec : 
+- NOT IDENTIFIED : permet de créer un rôle sans mot de passe
+- EXTERNALLY : mot de passe est contrôlé au niveau de l'OS
+- GLOBALLY : Rôle autorisé au niveau de l’annuaire
+- USING package : rôle applicatif.
 
-<p align="center">
-  <img width="900" src="images/10.PNG" alt="picture">
-</p>
+Pour supprimer un rôle : ```DROP ROLE role```
 
-Vous serez amené à saisir les coordonnées saisies auparavant : 
+## Gestion des profils
 
-<p align="center">
-  <img width="900" src="images/11.PNG" alt="picture">
-</p>
+Un profile est un concept Oracle qui permet à l'administrateur d'une base de contrôler la consommation des ressources systèmes et des mots de passes.
 
-Une fois authentifié, vous serez redirigé vers la page principale de votre workspace : 
+Pour créer un profil : ``` CREATE PROFILE profile LIMIT[ SESSIONS_PER_USER { integer | UNLIMITED | DEFAULT} ][ CPU_PER_SESSION { integer | UNLIMITED | DEFAULT } ][ CPU_PER_CALL { integer | UNLIMITED | DEFAULT } ][ CONNECT_TIME { integer | UNLIMITED | DEFAULT } ][ IDLE_TIME { integer | UNLIMITED | DEFAULT } ][LOGICAL_READS_PER_SESSION {integer | UNLIMITED|DEFAULT}][LOGICAL_READS_PER_CALL {integer | UNLIMITED|DEFAULT}][ COMPOSITE_LIMIT { integer | UNLIMITED | DEFAULT } ][PRIVATE_SGA {integer [K | M] | UNLIMITED | DEFAULT}]```
+avec : 
+- Session_per_user : Nombre maximum de sessions par utilisateur
+- Logical_read_per_session : Nbre de blocs de données à lire pour une session
+- cpu_per_session : temps CPU max par session en % de sécondes
+- cpu_per_call : temps CPU pour un appel (en cas de parse, execute ou fetch) en % de secondes
+- connect_time : temps écoulé maximum (en minutes)
+- idle_time : temps maximum d'inactivité.
+- private_sga : taille privée de la SGA allouée à un utilisateur
+- unlimited : limite de la ressource illimitée
+- default : prend la limite par défaut de la ressource.
 
-<p align="center">
-  <img width="900" src="images/12.PNG" alt="picture">
-</p>
+## Gestion des utilisateurs
+Lors de la création d'un utilisateur, il est possible de lui affecter : un mot de passe, un tablespace par défaut, un tablespace temporaire, un profile (explicite ou implicite), des quotas sur les tablespaces.
 
-Puis cliquez sur **"SQL workshop"**, pour passer vers l'invite de commande d'Oracle : 
+```CREATE USER user IDENTIFIED { BY password | EXTERNALLY| GLOBALLY AS‘nom_externe’ } [ DEFAULT TABLESPACE tablespace ] [ TEMPORARY TABLESPACEtablespace ] [ QU0TA { integer [ K | M ] | UNLIMITED } ON tablespace ] ...[ PROFILE profile ] [PASSWORD EXPIRE] [ACCOUNT {LOCK | UNLOCK}]```
+avec : 
+- Externally : utilisateur authentifié par l'OS
+- globally as : accès autorisé par l’annuaire LDAP
 
-<p align="center">
-  <img width="900" src="images/13.PNG" alt="picture">
-</p>
+Lors de la modification d'un utilisateur, il est possible de lui affecter : un mot de passe, un tablespace par défaut, un tablespace temporaire, un profile (explicite ou implicite), des quotas sur les tablespaces et un rôle par défaut (parmi les rôles attribués par la commande grant).
 
-Bravo !!
+ Exemples : 
+ ```ALTER USER etu1_21 IDENTIFIED BY md2000p DEFAULT TABLESPACE usersQUOTA UNLIMITED ON users QUOTA 1M ON system;```
+``` ALTER USER etu1_21 DEFAULT ROLE role_etu1;```
+
+ La suppression d'un utilisateur entraîne la suppression des objets de son schéma (tables, vues, séquences, synonymes, indexes ... ) . Le privilège drop user est requis.
+ 
+ ```DROP USER ETU1_33;``` -> suppression d'un utilisateur lié à un schéma vide
+ 
+ ```DROP USER ETU1_33 CASCADE; ```
+ 
+ - CASCADE : supprime  les objets du schéma de l'utilisateur et les contraintes d'intégrité de référence (et vide la corbeille).
+ Rq : les rôles créés par l'utilisateur ne sont pas supprimés.
+ 
+**La portée des privilèges :** 
+
+``` _________________________________________________
+Object privilege | Table   | View    | Sequence  |
+-------------------------------------------------
+ALTER            |   Yup   |   Nope  |  Yup      |
+-------------------------------------------------
+DELETE           |   Yup   |   Yup   |  Nope     |
+-------------------------------------------------
+INDEX            |   Yup   |   Nope  |  Nope     |
+-------------------------------------------------
+INSERT           |   Yup   |   Yup   |  Nope     |
+-------------------------------------------------
+SELECT           |   Yup   |   Yup   |  Yup      |
+-------------------------------------------------
+UPDATE           |   Yup   |   Yup   |  Nope     |
+_________________________________________________
+```
 
 
-Maintenant, Vous pouvez saisir vos propres scripts SQL pour interagir avec votre base de données.
+**Pour confirmer/lister les privilèges attribuées sur chaque Type d'Objet par rôle :**
+```
+__________________________________________________________________________________________________________________________
+Vue de privs dans le dictionnaire de données Oracle |     Usage/Displayed Data
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From ROLE_SYS_PRIVS  ;                     | -->  System privileges granted to roles                              |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From ROLE_TAB_PRIVS  ;                     | -->  Table privileges granted to roles                               |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_ROLE_PRIVS ;                     | -->  Roles accessible by the user	                                   |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_SYS_PRIVS  ;                     | -->  System privileges granted to the user                           |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_TAB_PRIVS_MADE ;                 | -->  Object privileges granted on the user’s objects                 |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_TAB_PRIVS_RECD ;                 | -->  Object privileges granted to the user    	                   |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_COL_PRIVS_MADE ;                 | -->  Object privileges granted on the columns of the user’s objects  |
+---------------------------------------------------------------------------------------------------------------------------
+SELECT * From USER_COL_PRIVS_RECD ;                 | -->  Object privileges granted to the user on specific columns       |
+___________________________________________________________________________________________________________________________
 
+```
+
+ 
+ ## DEMO 
+
+ - **Créer les nouveaux utilisateurs comme suit:**  
+      A) Equipe Dev :
+
+      * [ username: dev1, password: dev1 ]
+      * [ username: dev2, password: dev2 ]
+      
+      B) Equipe Test :
+
+      * [ username: tester1, password: tester1 ]
+      * [ username: tester2, password: tester2 ]
+     
+     
+     C) Equipe DevSecOps :      
+      * [ username: devsecops1, password: devsecops1 ]
+      * [ username: devsecops2, password: devsecops2 ]
+
+
+```sql
+A) Equipe Dev :
+    create user dev1 identified by dev1;
+    create user dev2 identified by dev2;
+
+ B) Equipe Test :
+    create user tester1 identified by tester1;
+    create user tester2 identified by tester2;
+    
+ C) Equipe DevSecOps :   
+    create user devsecops1 identified by dexsecops1;
+    create user devsecops2 identified by dexsecops2;
+    
+```
+  --->  **Une fois qu'un utilisateur est créé, le DBA peut octroyer des privilèges de système spécifiques à cet utilisateur.**
+ 
+
+  - **Attribuer les privilèges ci-dessous à l'utilisateur dev1 :** 
+ 
+     * Création de procédures stockées.
+     * Création de vue.
+     * Création de séquence.
+     * Création de session.
+     * Création,lecture, modification de structure et suppression de tables.
+
+```sql
+
+grant
+create procedure,
+create view,
+create sequence,
+create session,
+create any table,
+alter any table,
+SELECT ANY TABLE,
+UPDATE ANY TABLE,
+DROP ANY TABLE 
+to dev1 ;
+
+```
+
+¤   **Une fois qu'un utilisateur est créé, le DBA peut octroyer des privilèges de système spécifiques à cet utilisateur.**
+ 
+ 
+   - **Révoquer tous les privilèges associès à l'utilisateur dev1 :** 
+
+```sql
+
+revoke
+create procedure,
+create view,
+create sequence,
+create session,
+create any table,
+alter any table,
+SELECT ANY TABLE,
+UPDATE ANY TABLE,
+DROP ANY TABLE 
+from dev1 ;
+
+```
+
+ 
+  - **Créer des rôles dédiés pour chaque Equipe d'utilisateurs en réspectant les critères suivants** 
+
+      A) Le rôle de l'équipe Dev permet de:
+
+      * Création de procédures stockées.
+      * Création de vue.
+      * Création de séquence.
+      * Création de session.
+      * Création,lecture, modification de structure et suppression de tables.
+      
+      B) Le rôle de l'équipe Test permet de:
+
+      * Se connecter à la base de données.
+      * Création de session.
+      * Lecture données de toutes les tables.
+     
+     C) Le rôle de l'équipe DevSecOps permet d'avoir tous les privilèges avec mode administrateur de la base:  
+
+```sql
+
+A) Le rôle de l'équipe Dev permet de:
+      create role Dev;
+    grant 
+    create procedure,
+    create view,
+    create session,
+    create any table,
+    alter any table,
+    select any table , 
+    update any table ,
+    drop any table
+        to Dev;
+        
+```
+```sql
+B) Le rôle de l'équipe Test permet de:
+ create role Test;
+ grant
+ CONNECT,
+ create session,
+ alter any table 
+ to Test;
+ 
+```
+```sql
+C) Le rôle de l'équipe DevSecOps permet d'avoir tous les privilèges avec mode administrateur de la base: 
+ create role DevSecOps;
+ 
+ grant
+ dba 
+ to DevSecOps;
+ 
+```
+
+
+ 
+   - **Attribuer à chaque utilisateur, le rôle qui lui correspond:** 
+  
+```sql
+grant Dev to dev1,dev2;
+```
+```sql
+grant Test to tester1,tester2;
+```
+```sql
+grant DevSecOps to devsecops1,devsecops2;
+```
+
+   - **Limiter l'accès pour les testeurs de sorte qu'ils n'accèdent qu'à la table des employés "EMP":** 
+  
+```sql
+ revoke 
+ alter any table 
+ from
+ Test;
+ 
+ grant
+ alter table EMP 
+ TO
+ Test;
+
+ 
+```
+
+ ```sql
+grant Test 
+to
+tester1,tester2;
+```
+ 
+ 
+ 
+   - **Autoriser tous les utilisateurs sur le système pour interroger les données de la table EMP :** 
+  
+
+ ```sql
+GRANT SELECT ON emp TO PUBLIC ;
+
+```
+
+**Retirer les privilèges attribuées aux admins, ainsi que les utilisateurs qui ont reçu leurs privilèges sur la table EMP par un membre de l'équipe devsecops:**
+
+ 
+ 
+```sql
+REVOKE ALL PRIVILEGES ON emp FROM DevSecOpsteam;
+```
+
+
+**Créer un profile de ressources dédié à l'équipe des développeurs avec les limitations suivantes:**
+  * ***Nombre maximal de sessions permises par utilisateur:*** **illimité**
+  * ***Nombre maximal de CPU par session:*** **10000**  
+  * ***Nombre maximal de CPU par appel à la base :*** **1000**
+  * ***Durée maximal en secondes d'une session:*** ***45*** 
+  * ***Nombre maximal de lectures logiques par session utilisateur:*** ***Valeur par defaut***
+  * ***Nombre maximal de lectures logiques par appel à la base:*** ***1000***
+  * ***Taille maximale de l'SGA privée:*** ***25K***
+  * ***Durée de vie en jours du mot de passe:*** ***60***
+  * ***Nombre maximal de réutilisations de mot de passe:*** ***10***
+
+
+
+```sql 
+create profil Dev limit
+Session_per_user            unlimited
+cpu_per_session              10000
+cpu_per_call                 1000
+connect_time                  45
+Logical_reads_per_session   default
+Logical_reads_per_call      1000
+private_sga                 25k
+passsword_life_time         60
+passsword_reuse_time        10;
+```
+
+
+
+
+**Créer un profile de ressources dédié à l'équipe de test avec les limitations suivantes:**
+  * ***Nombre maximal de sessions permises par utilisateur:*** **5**
+  * ***Nombre maximal de CPU par session:*** **illimité**  
+  * ***Nombre maximal de CPU par appel à la base :*** **3000**
+  * ***Durée maximal en secondes d'une session:*** ***45*** 
+  * ***Nombre maximal de lectures logiques par session utilisateur:*** ***Valeur par defaut***
+  * ***Nombre maximal de lectures logiques par appel à la base:*** ***1000***
+  * ***Taille maximale de l'SGA privée:*** ***25K***
+  * ***Durée de vie en jours du mot de passe:*** ***60***
+  * ***Nombre maximal de réutilisations de mot de passe:*** ***10***
+```sql 
+create profil Test limit
+Session_per_user         5
+cpu_per_session          unlimited
+cpu_per_call             3000
+connect_time             45
+Logical_reads_per_session default
+Logical_reads_per_call   1000
+private_sga              25k
+passsword_life_time      60
+passsword_reuse_time     10;
+```
+
+**Créer un profile de ressources dédié à l'équipe devsecops avec les limitations suivantes:**
+  * ***Nombre maximal de sessions permises par utilisateur:*** **illimité**
+  * ***Nombre maximal de CPU par session:*** **illimité**  
+  * ***Nombre maximal de CPU par appel à la base :*** **3000**
+  * ***Durée maximal en secondes d'une session:*** ***3600*** 
+  * ***Nombre maximal de lectures logiques par session utilisateur:*** ***Valeur par defaut***
+  * ***Nombre maximal de lectures logiques par appel à la base:*** ***5000***
+  * ***Taille maximale de l'SGA privée:*** ***80K***
+  * ***Durée de vie en jours du mot de passe:*** ***60***
+  * ***Nombre maximal de réutilisations de mot de passe:*** ***10***
+
+```sql 
+create profil DevSecOps limit
+Session_per_user           unlimited
+cpu_per_session            unlimited
+cpu_per_call               3000
+connect_time               3600
+Logical_reads_per_session default
+Logical_reads_per_call     5000
+private_sga                80k
+passsword_life_time        60 
+passsword_reuse_time       10 ;
+```
+
+  - **Attribuer à l'utilisateur "dev1", le profile qui lui correspond:** 
+```sql
+alter user dev1 profil Dev;
+```
 
